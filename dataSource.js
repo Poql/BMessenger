@@ -13,21 +13,62 @@ db.once('open', function() {
 class DataSource {
 
 	constructor() {
-		this.classes = [new Model.Classe("Classe 1"), new Model.Classe("Classe 2")]
+		this.DBClasse = DBModel.Classe
+		this.DBUser = DBModel.User
 	}
 
-	getClasses() {
-		return this.classes
+	// Error
+
+	logError(error) {
+		console.log(err.message)
 	}
 
-	addClasses(classe) {
-		this.classes.append(classe)
+	// Prof
+
+	getClasses(cb) {
+		console.log("Searching all the classes ...")
+		this.DBClasse.find({}).exec((err, dbClasses) => {
+			if(dbClasses) {
+				console.log("Find ", dbClasses.length, " classes")
+				var classes = []
+				dbClasses.forEach((classe) => {
+					classes.push(new Model.Classe(classe.name))
+				})
+				cb(err, classes)
+			} else {
+				this.logError(err)
+				cb(err)
+			}
+		})
 	}
 
-	removeClasse(classe) {
-		let i = this.classes.findIndex(function(el) { return el.name == classe.name })
-		if (i >= 0) { this.classes.splice(i, 1) }
+	addClasseWithName(name, cb) {
+		console.log("Adding new class with name ", name, " ...")
+		this.DBClasse.findOne({name: name}, (err, classe) => {
+			if(classe) {
+				console.log("Class name already taken")
+				cb(new Error(name + " classe already exists"))
+				return
+			}
+			console.log("Class added")
+			var classe = new this.DBClasse({name: name, students: []})
+			classe.save(cb)
+		})
 	}
+
+	removeClasseWithName(name, cb) {
+		console.log("Removing class named ", name, " ...")
+		this.DBClasse.findOne({name : name}, (err, classe) => {
+			if(!classe) {
+				console.log("No class found with name ", name)
+				cb(new Error(name + " classe does not exist"))
+				return
+			}
+			console.log("Class removed")
+			this.DBClasse.remove({name : name}, cb)	
+		})
+	}
+
 }
 
 module.exports = DataSource
