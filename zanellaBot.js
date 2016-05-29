@@ -1,9 +1,12 @@
 const Bot = require("messenger-bot")
+const Parser = require("./parser")
+const MessageType = Parser.MessageType
 
 class ZanellaBot extends Bot {
 
 	constructor(opts) {
 		super(opts)
+		this.parser = new Parser.Parser()
 	}
 
 	// HANDLE EVENT
@@ -23,9 +26,17 @@ class ZanellaBot extends Bot {
 	}
 
 	_handleMessageEvent(event) {
+		let text = event.message.text
+		let result = this.parser.parseMessage(text)
+
+		event.payload = result.payload
+		let type = result.messageType
+
+		super._handleEvent(type, event)
 	}
 
 	_handlePostBack(event) {
+		super._handleEvent("postback", event)
 	}
 }
 
