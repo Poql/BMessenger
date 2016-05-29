@@ -35,28 +35,7 @@ class Parser {
 			result.messageType = MessageType.remove
 		}
 		else if(message.substring(0, 1) == "@") {
-			var words = gross.split(" ")
-			var classes = []
-			var msg = ""
-
-			words.forEach((word) => {
-				if(word.substring(0,1) == "@") {
-					let classe = word.substring(1,word.length).toLowerCase()
-					if(classes.indexOf(classe) == -1) {
-						classes.push(classe)	
-					}
-				}
-				else {
-					msg += (word + " ")
-				}
-			})
-			result.messageType = MessageType.publish
-
-			result.payload = {
-				classes: classes,
-				message: msg.trim()
-			}
-
+			result = resultForPublish(gross)
 		}
 		else if(message.substring(0, CMD_ADD_CLASS.length) == CMD_ADD_CLASS)  {
 			result.messageType = MessageType.add_class
@@ -67,6 +46,33 @@ class Parser {
 			result.payload = gross
 		}
 		return result
+	}
+
+	resultForPublish(gross) {
+		var words = gross.split(" ")
+		var classes = []
+		var msg = ""
+
+		words.forEach((word) => {
+			if(word.substring(0,1) == "@") {
+				let classe = word.substring(1,word.length).toLowerCase()
+				if(classes.indexOf(classe) == -1) {
+					classes.push(classe)	
+				}
+			}
+			else {
+				msg += (word + " ")
+			}
+		})
+		return {
+			messageType: MessageType.publish,
+			payload: {
+				classes: classes,
+				message: msg.trim()
+			}
+		}
+
+		
 	}
 }
 
