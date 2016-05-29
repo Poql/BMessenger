@@ -10,6 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "express": "^4.13.4",
-    "messenger-bot": "*"
+    "messenger-bot": "*",
+    "mongoose": "*"
   }
 }
