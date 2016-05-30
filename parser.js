@@ -89,6 +89,14 @@ class Parser {
 
 		
 	}
+
+	stringBegins(string, begin) {
+		return string.substring(0, begin.length) == begin
+	}
+
+	endOfString(string, begin) {
+		return string.substring(begin.length, string.length)
+	}
 }
 
 module.exports = {
