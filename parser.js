@@ -30,7 +30,7 @@ const CMD_JOIN_CLASS = "join "
 
 
 class Parser {
-	parseMessage(msg) {
+	parseMessage(msg, isProf) {
 		var result = {
 			messageType: undefined,
 			payload: undefined
@@ -41,25 +41,65 @@ class Parser {
 
 		if(message == CMD_CLASSES){
 			result.messageType = MessageType.classes
+			return result
 		}
-		else if(message.substring(0, CMD_REMOVE_CLASS.length) == CMD_REMOVE_CLASS) {
+		if(message == CMD_HELP) {
+			result.messageType = MessageType.help
+			return result
+		}
+
+		result = this.parseProfessorMessage(gross, message)
+		if(result.messageType == undefined && result.payload == undefined) {
+			result = this.parseStudentMessage(gross, message)
+			if(result.messageType == undefined && result.payload == undefined) {
+				result.messageType = MessageType.unparsed
+				result.payload = gross
+			}
+		}
+		return result
+	}
+
+	parseStudentMessage(gross, message) {
+		var result = {
+			messageType: undefined,
+			payload: undefined
+		}
+
+		if(message == CMD_MY_CLASSES) {
+			result.messageType = MessageType.my_classes
+		}
+		else if(this.stringBegins(message, CMD_JOIN_CLASS)) {
+			result.messageType = MessageType.join_class
+			result.payload = this.endOfString(gross, CMD_JOIN_CLASS)
+		}
+		else if(this.stringBegins(message, CMD_LEAVE_CLASS)) {
+			result.messageType = MessageType.leave_class
+			result.payload = this.endOfString(gross, CMD_LEAVE_CLASS)
+		}
+		return result
+	}
+
+	parseProfessorMessage(gross, message) {
+		var result = {
+			messageType: undefined,
+			payload: undefined
+		}
+
+		if(this.stringBegins(message, CMD_REMOVE_CLASS)) {
 			result.messageType = MessageType.remove_class
-			result.payload = gross.substring(CMD_REMOVE_CLASS.length, gross.length)
+			result.payload = this.endOfString(gross, CMD_REMOVE_CLASS)
 		}
 		else if(message == "remove") {
 			result.messageType = MessageType.remove
 		}
 		else if(message.substring(0, 1) == "@") {
-			result = resultForPublish(gross)
+			result = this.resultForPublish(gross)
 		}
-		else if(message.substring(0, CMD_ADD_CLASS.length) == CMD_ADD_CLASS)  {
+		else if(this.stringBegins(message, CMD_ADD_CLASS))  {
 			result.messageType = MessageType.add_class
-			result.payload = gross.substring(CMD_ADD_CLASS.length, gross.length)
+			result.payload = this.endOfString(gross, CMD_ADD_CLASS)
 		}
-		else {
-			result.messageType = MessageType.unparsed
-			result.payload = gross
-		}
+
 		return result
 	}
 
@@ -70,7 +110,7 @@ class Parser {
 
 		words.forEach((word) => {
 			if(word.substring(0,1) == "@") {
-				let classe = word.substring(1,word.length).toLowerCase()
+				let classe = word.substring(1,word.length).toUpperCase()
 				if(classes.indexOf(classe) == -1) {
 					classes.push(classe)	
 				}

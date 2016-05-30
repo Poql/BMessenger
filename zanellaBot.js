@@ -27,7 +27,7 @@ class ZanellaBot extends Bot {
 
 	_handleMessageEvent(event) {
 		let text = event.message.text
-		let result = this.parser.parseMessage(text)
+		let result = this.parser.parseMessage(text, false)
 
 		event.payload = result.payload
 		let type = result.messageType
