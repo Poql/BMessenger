@@ -69,6 +69,85 @@ class DataSource {
 		})
 	}
 
-}
+	// Student
 
+	joinClass(name, facebook_id, cb) {
+		console.log("Joining class named ", name, " ...")
+		this.getUser(facebook_id, (err, user) => {
+			if(user) {
+				console.log(user.facebook_id," joined class named ", name)
+				this.DBClasse.update({name: name}, {$addToSet: {students: user._id}}, cb)	
+			} else {
+				this.logError(err)
+				cb(err)
+			}
+		})
+	}
+
+	leaveClass(name, facebook_id, cb) {
+		console.log("Leaving class named ", name, " ...")
+		this.getUser(facebook_id, (err, user) => {
+			if(user) {
+				console.log(user.facebook_id, " leaved class named", name)
+				this.DBClasse.update({students : user._id, name : name}, { $pullAll: {students: [user._id] } }, cb)
+			} else {
+				this.log(err)
+				cb(err)
+			}
+		})
+	}
+
+	getMyClasses(facebook_id, cb) {
+		console.log("Searching all the classes of the user ", facebook_id, " ...")
+		this.getUser(facebook_id, (err, user) => {
+			if(user) {
+				this.DBClasse.find({students : user._id}, (err, classes) => {
+					if(classes) {
+						console.log("Find the ", classes.length, " classes of the user ", facebook_id)
+						let result = classes.map((el) => { return el.getClass() })
+						cb(err, result)	
+					} else {
+						this.log(err)
+						cb(err)
+					}
+				})
+			} else {
+				this.log(err)
+				cb(err)
+			}
+		})
+	}
+
+	getFacebookIds(classNames, cb) {
+		console.log("Searching all the students for the classes named ", classNames)
+		var facebook_ids = []
+		this.DBClasse.find({name: {$in : classNames}})
+		.populate("students")
+		.exec((err, classes) => {
+			if(classes) {
+				console.log("Find the classes named ", classes.map((el)=>{ return el.name }))
+				classes.forEach((classe) => {
+					facebook_ids = facebook_ids.concat(classe.students.map((el) => { return el.facebook_id }))
+				})
+				console.log("Find ", facebook_ids.count, " students")
+				cb(err, new Set(facebook_ids))
+			} else {
+				cb(err)
+			}
+		})
+	}
+
+	getUser(facebook_id, cb) {
+		this.DBUser.findOne({facebook_id : facebook_id}, (err, user) => {
+			if(user) {
+				cb(err, user)
+			} else {
+				let user = new this.DBUser({facebook_id : facebook_id})
+				user.save((err) => {
+					cb(err, user)
+				})
+			}
+		})
+	}
+}
 module.exports = DataSource
