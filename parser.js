@@ -1,17 +1,32 @@
 'use strict'
 
 const MessageType = {
+	// prof
 	classes: "classes",
 	add_class: "add_class",
 	remove_class: "remove_class",
 	remove: "remove",
 	publish: "publish",
-	unparsed: "unparsed"
+
+	// student
+	join_class: "join_class", 
+	leave_class: "leave_class",
+	my_classes: "my_classes",
+
+	// default
+	unparsed: "unparsed", 
+	help: "help"
 }
 
 const CMD_CLASSES = "classes"
+const CMD_HELP = "help"
+
 const CMD_REMOVE_CLASS = "remove "
 const CMD_ADD_CLASS = "add "
+
+const CMD_MY_CLASSES = "my classes"
+const CMD_LEAVE_CLASS = "leave "
+const CMD_JOIN_CLASS = "join "
 
 
 class Parser {
