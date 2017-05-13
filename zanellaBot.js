@@ -12,15 +12,13 @@ class ZanellaBot extends Bot {
 	// HANDLE EVENT
 
 	_handleEvent (type, event) {
-		console.log('New event : ${type}')
-
+		console.log('New event : ' + type)
+		
 		if(event.message) {
 			this._handleMessageEvent(event)
-		}
-		else if(event.postback) {
+		} else if(event.postback) {
 			this._handlePostBack(event)
-		}
-		else {
+		} else {
 			super._handleEvent(type, event)
 		}
 	}
