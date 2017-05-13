@@ -13,6 +13,31 @@ let bot = new Bot({
     verify: Configuration.FB_VERIFY_TOKEN
 })
 
+bot.on("event", (event, reply) => {
+    let id = event.sender.id
+    dataSource.getUser(id, (err, user) => {
+        if (err) {
+            reply(event)
+            return
+        }
+
+        if (user) {
+            console.log(user.first_name + " triggers an event")
+            event.user = user
+            reply(event)
+        } else {
+            console.log("Fetching profil of user " + id)    
+            bot.getProfile(id, (err, profile) => {
+                dataSource.createUser(id, profile, (err, user) => {
+                    console.log("Just created " + user.first_name +" triggers an event")
+                    event.user = user
+                    reply(event)
+                })
+            })
+        }
+    })
+})
+
 bot.on("error", (err) => {
     console.log(err.message)
 })
