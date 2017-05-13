@@ -31,40 +31,45 @@ const CMD_JOIN_CLASS = CMD.translate("Join_class") + " "
 
 
 class Parser {
-	parseMessage(msg, isProf) {
-		var result = undefined
+	parseMessage(msg) {
+		if (!msg || typeof(msg) != "string") {
+			console.log(":-(")
+			return {
+				messageType: MessageType.unparsed,
+				payload: ""
+			}
+		}
 
 		let gross = msg.trim()
 		let message = gross.toLowerCase()
 
 		if(message == CMD_CLASSES){
-			result = { messageType: MessageType.classes }
-			return result
+			return { messageType: MessageType.classes }
 		}
+
 		if(message == CMD_HELP) {
-			result = { messageType: MessageType.help }
-			return result
+			return { messageType: MessageType.help }
 		}
 
 		// if(isProf) {
 		// 	return this.parseProfessorMessage(gross, message)
 		// }
 		// return this.parseStudentMessage(gross, message)
-		result = this.parseProfessorMessage(gross, message)
+		var result = this.parseProfessorMessage(gross, message)
 		if(!result) {
 			result = this.parseStudentMessage(gross, message)
 		}
-		if(!result) {
-			result = {
-				messageType: MessageType.unparsed,
-				payload: gross
-			}
+		if (result) {
+			return result
 		}
-		return result
+		return {
+			messageType: MessageType.unparsed,
+			payload: gross
+		}
 	}
 
 	parseStudentMessage(gross, message) {
-		var result = undefined
+		var result = null
 
 		if(message == CMD_MY_CLASSES) {
 			result = { messageType: MessageType.my_classes }
@@ -85,7 +90,7 @@ class Parser {
 	}
 
 	parseProfessorMessage(gross, message) {
-		var result = undefined
+		var result = null
 
 		if(this.stringBegins(message, CMD_REMOVE_CLASS)) {
 			result = {
@@ -93,7 +98,7 @@ class Parser {
 				payload: this.endOfString(gross, CMD_REMOVE_CLASS) 
 			}
 		}
-		else if(message == "remove") {
+		else if(message == CMD_REMOVE_CLASS) {
 			result = { messageType: MessageType.remove }
 		}
 		else if(message.substring(0, 1) == "@") {

@@ -153,26 +153,27 @@ bot.on("remove", (event, reply) => {
 bot.on("publish", (event, reply) => {
     let classNames = event.payload.classes
     let message = event.payload.message
-    var resp = "Classe names incorrect"
 
     console.log("Publishing to " + classNames.toString() + " ...")
 
-    if(classNames) {
-        dataSource.getFacebookIds(classNames, (err, ids) => {
-            if(ids) {
-                ids.forEach((id) => {
-                    bot.sendMessage(id, { text: message }, (error) => {
-                        if(error) { console.log(error.message) }
-                    })
-                })
-
-                resp = "Message published to : " + classNames.toString()
-            } else {
-                resp = err.message
-            }
-        })
+    if(!classNames || classNames.count == 0) {
+        reply({ text : "Classe names incorrect"})
+        return
     }
-    reply({ text : resp })
+    dataSource.getFacebookIds(classNames, (err, ids) => {
+        if(ids) {
+            var text = ""
+            ids.forEach((id) => {
+                bot.sendMessage(id, { text: message }, (error) => {
+                    if(error) { console.log(error.message) }
+                })
+            })
+            text = "Message published to : " + classNames.toString()
+        } else {
+            text = err.message
+        }
+        reply({ text : text })
+    })
 })
 
 bot.on("postback", (event, reply) => {
@@ -180,7 +181,7 @@ bot.on("postback", (event, reply) => {
 })
 
 bot.on("unparsed", (event, reply) => {
-    reply({ text : "I can not understand that"})
+    reply({ text : "I can not understand that " + event.user.first_name })
 })
 
 http.createServer(bot.middleware()).listen(3000)
