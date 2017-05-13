@@ -4,12 +4,13 @@ const Bot = require("./zanellaBot")
 const DataSource = require("./dataSource")
 const Templater = require("./templater")
 const Words = require("./words")
+const Configuration = require("./configuration")
 
 const dataSource = new DataSource()
 
 let bot = new Bot({
-    token: 'TOKEN',
-    verify: 'VERIFICATION_TOKEN'
+    token: Configuration.FB_CLIENT_TOKEN,
+    verify: Configuration.FB_VERIFY_TOKEN
 })
 
 bot.on("error", (err) => {
